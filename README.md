@@ -70,4 +70,4 @@ If --undo is called:
 
  - Progress Bar: Show progress while processing large folders.
 
- - Undo Option: Restore files to their original location if needed.
+ - Undo Option: Restore files to their original location if needed. (done)
