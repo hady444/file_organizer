@@ -46,13 +46,28 @@ It also supports a simulation mode to preview changes before moving files.
 The project uses Python’s built-in unittest framework.
   ```python -m unittest discover test -v```
 
+## Undo Feature
+  **How the Undo Works**
+   Every time we move files for real (not simulate), we log:
+
+```
+[
+    {"src": "/original/path/file1.jpg", "dest": "/Images/file1.jpg"},
+    {"src": "/original/path/file2.pdf", "dest": "/Documents/file2.pdf"}
+]
+```
+If --undo is called:
+ - Reads this JSON file.
+ - Moves each file back to its original location.
+ - Deletes the log file so the undo only applies once.
+
 ## Future Enhancements
-- Recursive Mode: Organize files inside subfolders as well.
+ - Recursive Mode: Organize files inside subfolders as well.
 
-- Custom Categories: Allow users to define categories and extensions via a config file.
+ - Custom Categories: Allow users to define categories and extensions via a config file.
 
-- Logging: Save an operation log with details of moved files.
+ - Logging: Save an operation log with details of moved files.
 
-- Progress Bar: Show progress while processing large folders.
+ - Progress Bar: Show progress while processing large folders.
 
-- Undo Option: Restore files to their original location if needed.
+ - Undo Option: Restore files to their original location if needed.

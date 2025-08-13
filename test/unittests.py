@@ -1,8 +1,8 @@
 import os
 import tempfile
 import unittest
-from file_organizer import organize_files, categorize_file
-
+from file_organizer import organize_files, categorize_file, undo_last_move, LOG_FILE
+import json
 
 def create_test_files(base_dir, files):
     """Helper to create dummy files in a directory."""
@@ -47,6 +47,29 @@ class TestFileOrganizer(unittest.TestCase):
             self.assertEqual(summary["Documents"], 1)
             self.assertEqual(summary["Videos"], 1)
             self.assertEqual(summary["Others"], 1)
+    def test_undo_last_move(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create test files
+            create_test_files(temp_dir, ["file1.jpg", "file2.pdf"])
+
+            # Perform real move
+            organize_files(temp_dir, simulate=False)
+
+            # Read log file to ensure it was created
+            self.assertTrue(os.path.exists(LOG_FILE))
+            with open(LOG_FILE, "r") as f:
+                moves = json.load(f)
+            self.assertEqual(len(moves), 2)
+
+            # Undo the move
+            undo_last_move()
+
+            # Check that files are back in the original location
+            self.assertTrue(os.path.exists(os.path.join(temp_dir, "file1.jpg")))
+            self.assertTrue(os.path.exists(os.path.join(temp_dir, "file2.pdf")))
+
+            # Check that log file is deleted after undo
+            self.assertFalse(os.path.exists(LOG_FILE))
 
 
 if __name__ == "__main__":
