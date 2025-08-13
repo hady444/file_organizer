@@ -1,4 +1,4 @@
-# File Organiser
+# File Organizer
 
 A Python command-line tool that organizes files in a given folder into categorized subfolders such as **Images**, **Documents**, **Videos**, and **Others**.  
 It also supports a simulation mode to preview changes before moving files.
@@ -20,11 +20,11 @@ It also supports a simulation mode to preview changes before moving files.
 
 ## Project Structure
 
-File_Organiser/
-│── file_organiser.py # Main script
+```File_Organizer/
+│── file_organizer.py # Main script
 │── test/ # Test folder
 │ └── test.py # Unit tests
-
+```
 
 ---
 
@@ -32,6 +32,27 @@ File_Organiser/
 
  **Clone the repository**:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/File_Organiser.git
-   cd File_Organiser
+   git clone https://github.com/YOUR_USERNAME/File_Organizer.git
+   cd File_Organizer
    ```
+
+## Usage
+ **Organize Files**
+  ```python file_organiser.py --path /path/to/folder```
+
+ **Simulate Organization (no files moved)**
+  ```python file_organiser.py --path /path/to/folder --simulate```
+## Running Tests
+The project uses Python’s built-in unittest framework.
+  ```python -m unittest discover test -v```
+
+## Future Enhancements
+- Recursive Mode: Organize files inside subfolders as well.
+
+- Custom Categories: Allow users to define categories and extensions via a config file.
+
+- Logging: Save an operation log with details of moved files.
+
+- Progress Bar: Show progress while processing large folders.
+
+- Undo Option: Restore files to their original location if needed.
