@@ -39,7 +39,7 @@ def organize_files(folder_path, simulate=False):
 
         if not simulate:
             os.makedirs(category_folder, exist_ok=True)
-            shutil.move(os.path.join(folder_path, file), os.path.join(category_folder, file))
+            shutil.move(src, dest)
             moves.append({"src": src, "dest": dest})
 
         summary[category] += 1
