@@ -1,8 +1,10 @@
 import os
 import tempfile
 import unittest
-from file_organizer import organize_files, categorize_file, undo_last_move, LOG_FILE
+from file_organizer import organize_files, categorize_file, undo_last_move
 import json
+
+LOG_FILE = "log.json"
 
 def create_test_files(base_dir, files):
     """Helper to create dummy files in a directory."""
@@ -22,7 +24,7 @@ class TestFileOrganizer(unittest.TestCase):
     def test_organize_files_simulation(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             create_test_files(temp_dir, ["file1.jpg", "file2.pdf", "file3.mp4", "file4.xyz"])
-            summary = organize_files(temp_dir, simulate=True)
+            summary = organize_files(temp_dir, LOG_FILE, simulate=True)
 
             self.assertEqual(summary["Images"], 1)
             self.assertEqual(summary["Documents"], 1)
@@ -36,7 +38,7 @@ class TestFileOrganizer(unittest.TestCase):
     def test_organize_files_real_move(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             create_test_files(temp_dir, ["file1.jpg", "file2.pdf", "file3.mp4", "file4.xyz"])
-            summary = organize_files(temp_dir, simulate=False)
+            summary = organize_files(temp_dir, LOG_FILE, simulate=False)
 
             self.assertTrue(os.path.exists(os.path.join(temp_dir, "Images", "file1.jpg")))
             self.assertTrue(os.path.exists(os.path.join(temp_dir, "Documents", "file2.pdf")))
@@ -47,29 +49,50 @@ class TestFileOrganizer(unittest.TestCase):
             self.assertEqual(summary["Documents"], 1)
             self.assertEqual(summary["Videos"], 1)
             self.assertEqual(summary["Others"], 1)
-    def test_undo_last_move(self):
+    def test_undo_last_move_one_action(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create test files
             create_test_files(temp_dir, ["file1.jpg", "file2.pdf"])
 
             # Perform real move
-            organize_files(temp_dir, simulate=False)
+            organize_files(temp_dir, LOG_FILE, simulate=False)
 
             # Read log file to ensure it was created
             self.assertTrue(os.path.exists(LOG_FILE))
-            with open(LOG_FILE, "r") as f:
-                moves = json.load(f)
-            self.assertEqual(len(moves), 2)
-
             # Undo the move
-            undo_last_move()
+            undo_last_move(LOG_FILE)
 
             # Check that files are back in the original location
             self.assertTrue(os.path.exists(os.path.join(temp_dir, "file1.jpg")))
             self.assertTrue(os.path.exists(os.path.join(temp_dir, "file2.pdf")))
 
-            # Check that log file is deleted after undo
-            self.assertFalse(os.path.exists(LOG_FILE))
+    def test_undo_last_move_multiple_actions(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Create test files
+            create_test_files(temp_dir, ["file1.jpg", "file1.pdf"])
+
+            # Perform real move
+            organize_files(temp_dir, LOG_FILE, simulate=False)
+            # Repeated the move to create multiple actions
+            create_test_files(temp_dir, ["file2.jpg", "file2.pdf"])
+            
+            organize_files(temp_dir, LOG_FILE, simulate=False)
+            
+            # Read log file to ensure it was created
+            self.assertTrue(os.path.exists(LOG_FILE))
+
+            # Undo the move
+            undo_last_move(LOG_FILE)
+
+            # Check that files are back in the original location
+            self.assertFalse(os.path.exists(os.path.join(temp_dir, "file1.jpg")))
+            self.assertFalse(os.path.exists(os.path.join(temp_dir, "file1.pdf")))
+            self.assertTrue(os.path.exists(os.path.join(temp_dir, "file2.jpg")))
+            self.assertTrue(os.path.exists(os.path.join(temp_dir, "file2.pdf")))
+            undo_last_move(LOG_FILE)
+            self.assertTrue(os.path.exists(os.path.join(temp_dir, "file1.jpg")))
+            self.assertTrue(os.path.exists(os.path.join(temp_dir, "file1.pdf")))
+            
 
 
 if __name__ == "__main__":
